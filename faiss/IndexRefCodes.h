@@ -14,10 +14,12 @@ struct CodePacker;
 struct IndexRefCodes : Index {
     size_t code_size;
 
+    bool read_as_flat;
+
     /// encoded datasets
     std::vector<uint8_t *> code_storage;
 
-    /// the last ids in each storage entry
+    /// the last ids in each storage entry (exclusive)
     std::vector<idx_t> end_ids;
 
     IndexRefCodes();

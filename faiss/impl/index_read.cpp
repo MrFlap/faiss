@@ -549,6 +549,19 @@ Index* read_index(IOReader* f, int io_flags) {
                 idxf->codes.size() == idxf->ntotal * idxf->code_size);
         // leak!
         idx = idxf;
+    } else if (
+            h == fourcc("IxRI") || h == fourcc("IxR2") || h == fourcc("IxRl")) {
+        IndexRefCodes* idxr = new IndexRefCodes();
+        read_index_header(idxf, f);
+        idxf->code_size = idxf->d * sizeof(float);
+        size_t data_size;
+        READANDCHECK(&data_size, 1);
+        uint8_t * codes = (uint8_t *)malloc(data_size);
+        READANDCHECK(codes, data_size);
+        idxf->code_storage.push_back(codes);
+        idxf->end_ids.push_back(idxf->ntotal);
+        // leak!
+        idx = idxr;
     } else if (h == fourcc("IxHE") || h == fourcc("IxHe")) {
         IndexLSH* idxl = new IndexLSH();
         read_index_header(idxl, f);

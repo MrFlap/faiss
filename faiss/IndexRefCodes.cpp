@@ -16,7 +16,9 @@
 namespace faiss {
 
 IndexRefCodes::IndexRefCodes(size_t code_size, idx_t d, MetricType metric)
-        : Index(d, metric), code_size(code_size) {}
+        : Index(d, metric), code_size(code_size) {
+            read_as_flat = true;
+        }
 
 IndexRefCodes::IndexRefCodes() : code_size(0) {}
 
