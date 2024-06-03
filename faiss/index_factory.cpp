@@ -41,6 +41,7 @@
 #include <faiss/IndexPQ.h>
 #include <faiss/IndexPQFastScan.h>
 #include <faiss/IndexPreTransform.h>
+#include <faiss/IndexRefCodes.n>
 #include <faiss/IndexRefine.h>
 #include <faiss/IndexRowwiseMinMax.h>
 #include <faiss/IndexScalarQuantizer.h>
@@ -440,6 +441,11 @@ IndexHNSW* parse_IndexHNSW(
 
     if (match("Flat|")) {
         return new IndexHNSWFlat(d, hnsw_M, mt);
+    }
+
+    if (match("Ref|")) {
+        Index * storage = dynamic_cast<Index *>(new IndexRefCodes(sizeof(float), d, mt));
+        return new IndexHNSW(storage, hnsw_M);
     }
 
     if (match("PQ([0-9]+)(x[0-9]+)?(np)?")) {
