@@ -7,11 +7,16 @@
 
 #include <faiss/IndexRefCodes.h>
 
-#include <faiss/impl/AuxIndexStructures.h>
-#include <faiss/impl/CodePacker.h>
-#include <faiss/impl/DistanceComputer.h>
-#include <faiss/impl/FaissAssert.h>
+
 #include <faiss/impl/IDSelector.h>
+#include <faiss/impl/AuxIndexStructures.h>
+#include <faiss/impl/FaissAssert.h>
+#include <faiss/utils/Heap.h>
+#include <faiss/utils/distances.h>
+#include <faiss/utils/extra_distances.h>
+#include <faiss/utils/prefetch.h>
+#include <faiss/utils/sorting.h>
+#include <faiss/utils/utils.h>
 
 namespace faiss {
 
@@ -21,6 +26,16 @@ IndexRefCodes::IndexRefCodes(size_t code_size, idx_t d, MetricType metric)
         }
 
 IndexRefCodes::IndexRefCodes() : code_size(0) {}
+
+void IndexRefCodes::search(
+        idx_t n,
+        const float* x,
+        idx_t k,
+        float* distances,
+        idx_t* labels,
+        const SearchParameters* params) const {
+    FAISS_THROW_MSG("not implemented");
+}
 
 void IndexRefCodes::add(idx_t n, const float* x) {
     FAISS_THROW_IF_NOT(is_trained);
@@ -48,10 +63,16 @@ void IndexRefCodes::reset() {
 }
 
 void IndexRefCodes::get_indices(idx_t key, idx_t * storage_batch, idx_t * storage_index) const {
-    size_t lo = 0;
-    size_t hi = code_storage.size() - 1;
+    FAISS_THROW_IF_MSG(code_storage.size() == 0, "IndexRefCodes is empty");
+    if(code_storage.size() == 1) {
+        *storage_batch = 0;
+        *storage_index = key;
+        return;
+    }
+    idx_t lo = 0;
+    idx_t hi = code_storage.size() - 1;
     while(lo < hi) {
-        size_t mid = lo + (hi - lo) / 2;
+        idx_t mid = lo + (hi - lo) / 2;
         if(end_ids[mid] > key) {
             hi = mid;
         } else {
@@ -71,13 +92,13 @@ size_t IndexRefCodes::sa_code_size() const {
 }
 
 size_t IndexRefCodes::remove_ids(const IDSelector& sel) {
-    size_t total = 0;
-    size_t prev_id = 0;
+    idx_t total = 0;
+    idx_t prev_id = 0;
     for (idx_t code_seg = 0; code_seg < code_storage.size(); code_seg++){
         uint8_t * codes = code_storage[code_seg];
-        idx_t total = end_ids[code_seg] - prev_id;
+        idx_t total_vecs = end_ids[code_seg] - prev_id;
         idx_t j = 0;
-        for (idx_t i = 0; i < total; i++) {
+        for (idx_t i = 0; i < total_vecs; i++) {
             if (!sel.is_member(i)) {
                 if (i > j) {
                     memmove(&codes[code_size * j],
@@ -91,7 +112,7 @@ size_t IndexRefCodes::remove_ids(const IDSelector& sel) {
         prev_id = end_ids[code_seg];
         end_ids[code_seg] = prev_id + j;
     }
-    size_t nremove = ntotal - total;
+    idx_t nremove = ntotal - total;
     ntotal = total;
     return nremove;
 }

@@ -26,6 +26,8 @@ struct IndexRefCodes : Index {
 
     IndexRefCodes(size_t code_size, idx_t d, MetricType metric = METRIC_L2);
 
+    void search(idx_t n, const float* x, idx_t k, float* distances, idx_t* labels, const SearchParameters* params) const override;
+
     /// default add uses sa_encode
     void add(idx_t n, const float* x) override;
 

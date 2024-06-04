@@ -43,6 +43,7 @@
 #include <faiss/IndexPQ.h>
 #include <faiss/IndexPQFastScan.h>
 #include <faiss/IndexPreTransform.h>
+#include <faiss/IndexRefCodes.h>
 #include <faiss/IndexRefine.h>
 #include <faiss/IndexRowwiseMinMax.h>
 #include <faiss/IndexScalarQuantizer.h>
@@ -552,14 +553,14 @@ Index* read_index(IOReader* f, int io_flags) {
     } else if (
             h == fourcc("IxRI") || h == fourcc("IxR2") || h == fourcc("IxRl")) {
         IndexRefCodes* idxr = new IndexRefCodes();
-        read_index_header(idxf, f);
-        idxf->code_size = idxf->d * sizeof(float);
+        read_index_header(idxr, f);
+        idxr->code_size = idxr->d * sizeof(float);
         size_t data_size;
         READANDCHECK(&data_size, 1);
         uint8_t * codes = (uint8_t *)malloc(data_size);
         READANDCHECK(codes, data_size);
-        idxf->code_storage.push_back(codes);
-        idxf->end_ids.push_back(idxf->ntotal);
+        idxr->code_storage.push_back(codes);
+        idxr->end_ids.push_back(idxr->ntotal);
         // leak!
         idx = idxr;
     } else if (h == fourcc("IxHE") || h == fourcc("IxHe")) {

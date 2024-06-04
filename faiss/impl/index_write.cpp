@@ -297,8 +297,6 @@ void write_InvertedLists(const InvertedLists* ils, IOWriter* f) {
     }
 }
 
-void write_RefCodes(const )
-
 void write_ProductQuantizer(const ProductQuantizer* pq, const char* fname) {
     FileIOWriter writer(fname);
     write_ProductQuantizer(pq, &writer);
@@ -407,14 +405,13 @@ void write_index(const Index* idx, IOWriter* f, int io_flags) {
     } else if (const IndexRefCodes * idxref = dynamic_cast<const IndexRefCodes *>(idx)) {
         // Should be an identical serialization to an IndexFlat, gives option
         // to be readable as such.
+        uint32_t h;
         if(idxref->read_as_flat) {
-            uint32_t h =
-                    fourcc(idxf->metric_type == METRIC_INNER_PRODUCT ? "IxFI"
+            h = fourcc(idxf->metric_type == METRIC_INNER_PRODUCT ? "IxFI"
                                 : idxf->metric_type == METRIC_L2  ? "IxF2"
                                                                     : "IxFl");
         } else {
-            uint32_t h =
-                    fourcc(idxf->metric_type == METRIC_INNER_PRODUCT ? "IxRI"
+            h = fourcc(idxf->metric_type == METRIC_INNER_PRODUCT ? "IxRI"
                                 : idxf->metric_type == METRIC_L2  ? "IxR2"
                                                                     : "IxRl");
         }
@@ -424,9 +421,9 @@ void write_index(const Index* idx, IOWriter* f, int io_flags) {
         for(int i = 0; i < idxref->code_storage.size(); i++) {
             size_t storage_size = idxref->end_ids[i];
             if(i > 0) {
-                storage_size -= idxref->start_ids[i - 1];
+                storage_size -= idxref->end_ids[i - 1];
             }
-            storage_size *= idx->code_size;
+            storage_size *= idxref->code_size;
             WRITEANDCHECK(idxref->code_storage[i], storage_size);
         }
     } else if (const IndexLSH* idxl = dynamic_cast<const IndexLSH*>(idx)) {
