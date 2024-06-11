@@ -40,6 +40,7 @@ set(FAISS_SRC
   IndexIVFIndependentQuantizer.cpp
   IndexPQFastScan.cpp
   IndexPreTransform.cpp
+  IndexRefCodes.h
   IndexRefine.cpp
   IndexReplicas.cpp
   IndexRowwiseMinMax.cpp
@@ -132,6 +133,7 @@ set(FAISS_HEADERS
   IndexAdditiveQuantizerFastScan.h
   IndexPQFastScan.h
   IndexPreTransform.h
+  IndexRefCodes.h
   IndexRefine.h
   IndexReplicas.h
   IndexRowwiseMinMax.h
