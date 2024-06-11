@@ -462,6 +462,7 @@ void gpu_sync_all_devices()
 %include  <faiss/IndexNNDescent.h>
 
 %include  <faiss/IndexIVFFlat.h>
+%include  <faiss/IndexRefCodes.h>
 
 %warnfilter(509) faiss::nsg::Graph< int >::at(int,int);
 
