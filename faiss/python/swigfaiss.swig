@@ -111,6 +111,8 @@ typedef uint64_t size_t;
 #include <faiss/IndexIDMap.h>
 #include <faiss/IndexRefine.h>
 
+#include <faiss/IndexRefCodes.h>
+
 #include <faiss/IndexRowwiseMinMax.h>
 
 #include <faiss/impl/FaissAssert.h>
